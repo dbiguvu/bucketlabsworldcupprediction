@@ -68,8 +68,17 @@ Monte Carlo Simulation is the best choice because predicting the World Cup is a 
 
 The Monte Carlo Simulation accounts for this by simulating the tournament thousands of times and calculating how often each team wins. Instead of making one prediction, it estimates each team's probability of becoming champion, making it more realistic and reliable for tournament forecasting than models that predict only individual matches.
 
+What data to use
+Each team's FIFA rank, Elo rating, and win/draw/loss % are pulled from two real sources:
 
-Tools for the project
+FIFA World Ranking: https://www.espn.com/soccer/story/_/id/46664763/fifa-mens-top-50-world-rankings 
+World Football Elo Ratings: https://www.eloratings.net/2026_World_Cup_start 
+How the Model Will Be Improved
+
+If predictions come out wrong, the model can get improved by changing the weight constants in the MonteCarloEngine.java class  (FORM_WEIGHT, RANK_WEIGHT, LEAGUE_AVG_GOALS) one at a time and comparing accuracy before and after, updating any team data that's outdated, and adding new features if needed to make the model more accurate.
+
+
+Tools for the project:
 Programming Language: Java
 Development Environment: Eclipse 
 Tools: Git & GitHub
