@@ -1,0 +1,17 @@
+matchId,group,teamA,teamB
+M1,R1,South Africa,Canada
+M2,R1,Netherlands,Morocco
+M3,R1,Germany,Paraguay
+M4,R1,France,Sweden
+M5,R1,Belgium,Senegal
+M6,R1,USA,Bosnia and Herzegovina
+M7,R1,Spain,Austria
+M8,R1,Portugal,Croatia
+M9,R1,Brazil,Japan
+M10,R1,Ivory Coast,Norway
+M11,R1,Mexico,Ecuador
+M12,R1,England,DR Congo
+M13,R1,Switzerland,Algeria
+M14,R1,Colombia,Ghana
+M15,R1,Australia,Egypt
+M16,R1,Argentina,Cape Verde
