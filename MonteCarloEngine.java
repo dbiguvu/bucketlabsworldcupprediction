@@ -26,7 +26,7 @@ public class MonteCarloEngine {
 	// method overloading, used if no arguments are passed in when creating a MonteCarloEngine object
 	public MonteCarloEngine() {
 	
-		this(System.nanoTime());
+		 this.random = new Random();
 	
 	}
 
