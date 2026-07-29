@@ -114,30 +114,4 @@ public class DataLoader {
 	}
 
 	
-	public static Map<String, int[]> loadActualResults(String path) throws IOException {
-
-		Map<String, int[]> results = new HashMap<>();
-
-		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-
-			String line = br.readLine(); // header
-
-			while ((line = br.readLine()) != null) {
-
-				if (line.trim().isEmpty())
-					continue;
-
-				String[] p = line.split(",");
-
-				int scoreA = Integer.parseInt(p[1].trim());
-
-				int scoreB = Integer.parseInt(p[2].trim());
-
-				results.put(p[0].trim(), new int[] { scoreA, scoreB });
-
-			}
-		}
-
-		return results;
-	}
 }
