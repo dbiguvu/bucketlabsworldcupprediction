@@ -14,7 +14,7 @@ public class AccuracyEvaluator {
 		double brierSum = 0.0;      // lower is better - 0.0 is a perfect forecast
 
 		System.out.println("\n ACCURACY REPORT");
-		System.out.println(" (matches with no result on file yet are skipped)\n");
+		
 
 		for (PredictionResult pr : predictions) {
 			ActualResult actual = actualResults.get(pr.fixture.matchId);
