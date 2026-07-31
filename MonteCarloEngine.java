@@ -1,36 +1,53 @@
 package bucketlabsworldcupprediction;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-// given two teams, it estimates how likely each outcome (A wins / draw / B wins) is, by simulating the match thousands of times with realistic randomness
+// given two teams, it estimates how likely each outcome (A wins / draw / B wins) is, by simulating
+// the match thousands of times with realistic randomness - and also tracks the exact scorelines
+// that came up most often, so we can report actual whole-number score predictions too
 public class MonteCarloEngine {
 
-	// how much weight recent form (win% and loss%) gets in deciding who's stronger
+	// how much weight recent form (win% and loss%) gets in the "overall quality" adjustment
 	private static final double FORM_WEIGHT = 60.0;
 
-	//how much weight FIFA rank gets in deciding who's stronger
+	// how much weight FIFA rank gets in the "overall quality" adjustment
 	private static final double RANK_WEIGHT = 1.5;
 
 	private static final double LEAGUE_AVG_GOALS = 1.35;
 
+	// these three constants are the ACTUAL computed averages of xG / goals conceded / save %
+	// across all 48 teams' real FIFA World Cup 2026 stats - not invented numbers, not a rescaled
+	// range. Every team's real stat just gets compared as a ratio against these real averages.
+	private static final double AVG_XG = 5.5333;
+	private static final double AVG_GOALS_CONCEDED = 6.4167;
+	private static final double AVG_SAVE_PCT = 0.6754;
+
+	// how many of the most frequent exact scorelines to report per match
+	private static final int TOP_SCORES_TRACKED = 3;
+
 	// generates random numbers
 	private final Random random;
 
-	// constructor , used if a long is entered when creating a MonteCarloEngine object
+	// constructor , used if a seed is provided (reproducible results - good for testing)
 	public MonteCarloEngine(long seed) {
-	
+
 		this.random = new Random(seed);
-	
+
 	}
 
 	// method overloading, used if no arguments are passed in when creating a MonteCarloEngine object
 	public MonteCarloEngine() {
-	
+
 		 this.random = new Random();
-	
+
 	}
 
-	//this method calculates what the probability that team A beats team B outright is
+	//this method calculates what the probability that team A beats team B outright is, based on
+	// Elo/form/rank - used as a smaller "overall quality" nudge on top of the real-stats math
 	private double expectedScoreA(Team a, Team b) {
 
 		double eloDiff = a.eloRating - b.eloRating; // tells us how much better A's Elo rating is than B's
@@ -46,16 +63,24 @@ public class MonteCarloEngine {
 
 	}
 
-	// this method estimates how many goals this team should score on average, in this particular match
-	private double expectedGoals(double strengthMultiplier) {
+	// how many goals "scoringTeam" should be expected to score against "concedingTeam", using
+	// ONLY real numbers: scoringTeam's real xG relative to the real tournament-average xG,
+	// multiplied by concedingTeam's real goals-conceded ratio and real save-percentage ratio.
+	// No rescaling, no invented rating scale - three real ratios multiplied together.
+	private double expectedGoalsFromRealStats(Team scoringTeam, Team concedingTeam) {
 
-		
-		double adjusted = LEAGUE_AVG_GOALS * strengthMultiplier;
+		double attackVsAvg = scoringTeam.xG / AVG_XG;
 
-		//make sure the final number never drops to zero or below
-		return Math.max(0.15, adjusted);
+		double opponentDefenseVsAvg = concedingTeam.goalsConceded / AVG_GOALS_CONCEDED;
+
+		double opponentGkVsAvg = AVG_SAVE_PCT / concedingTeam.savePct();
+
+		double raw = LEAGUE_AVG_GOALS * attackVsAvg * opponentDefenseVsAvg * opponentGkVsAvg;
+
+		return Math.max(0.15, raw);
 
 	}
+
   // generates one random, realistic goal count based on an average expected value
 	private int samplePoisson(double lambda) {
 
@@ -85,28 +110,36 @@ public class MonteCarloEngine {
 
 		Team b = fixture.teamB;
 
-		// figures out roughly how much stronger team A is than team B
+		// overall quality edge from Elo/form/rank, turned into a mild multiplier (0.85 - 1.15).
+		// the real xG/goals-conceded/save% data does the main work now; this just nudges things.
 		double expA = expectedScoreA(a, b);
 
-		// converts that number into a strength multiplier for each team, stronger teams get a boost to their expected goals and weaker teams get a small reduction
-		double strengthMultiplierA = 0.75 + 0.5 * expA;
+		double qualityMultiplierA = 0.85 + 0.3 * expA;
 
-		double strengthMultiplierB = 0.75 + 0.5 * (1 - expA);
+		double qualityMultiplierB = 0.85 + 0.3 * (1 - expA);
 
-		//calculates each team's expected average goals for this specific match
-		double lambdaA = expectedGoals(strengthMultiplierA);
+		// base expected goals purely from real stats
+		double baseLambdaA = expectedGoalsFromRealStats(a, b);
 
-		double lambdaB = expectedGoals(strengthMultiplierB);
+		double baseLambdaB = expectedGoalsFromRealStats(b, a);
+
+		// final expected goals for this match: real-stats baseline, nudged by overall quality
+		double lambdaA = Math.max(0.15, baseLambdaA * qualityMultiplierA);
+
+		double lambdaB = Math.max(0.15, baseLambdaB * qualityMultiplierB);
 
 		// these counters will track results across all the simulated matches
 		long winsA = 0, winsB = 0, draws = 0;
 
 		long totalGoalsA = 0, totalGoalsB = 0;
 
+		// tracks how many times each exact scoreline ("2-1", "0-0", etc) came up
+		Map<String, Long> scorelineCounts = new HashMap<>();
+
 		/* the monte carlo loop, randomly generates a score for both teams and records
 		 who won. Does this thousands of times and looks at how often
 		 each outcome happened, gives us realistic probabilities. */
-		
+
 		for (int i = 0; i < numSimulations; i++) {
 
 			// randomly generate a goal count for each team in this one simulated match
@@ -119,16 +152,18 @@ public class MonteCarloEngine {
 			totalGoalsB += goalsB;
 
 			if (goalsA > goalsB)
-				
+
 				winsA++;
-			
+
 			else if (goalsB > goalsA)
-			
+
 				winsB++;
-		
+
 			else
-			
+
 				draws++;
+
+			scorelineCounts.merge(goalsA + "-" + goalsB, 1L, Long::sum);
 
 		}
 
@@ -144,6 +179,37 @@ public class MonteCarloEngine {
 
 		double avgGoalsB = totalGoalsB / (double) numSimulations;
 
-		return new PredictionResult(fixture, winProbA, drawProb, winProbB, avgGoalsA, avgGoalsB);
+		List<ScorePrediction> topScores = extractTopScorelines(scorelineCounts, numSimulations);
+
+		return new PredictionResult(fixture, winProbA, drawProb, winProbB, avgGoalsA, avgGoalsB, topScores);
+	}
+
+	// turns the raw scoreline tally into a sorted list of the most frequent exact whole-number results
+	private List<ScorePrediction> extractTopScorelines(Map<String, Long> counts, int numSimulations) {
+
+		List<Map.Entry<String, Long>> entries = new ArrayList<>(counts.entrySet());
+
+		entries.sort((e1, e2) -> Long.compare(e2.getValue(), e1.getValue())); // highest count first
+
+		List<ScorePrediction> topScores = new ArrayList<>();
+
+		for (int i = 0; i < Math.min(TOP_SCORES_TRACKED, entries.size()); i++) {
+
+			Map.Entry<String, Long> entry = entries.get(i);
+
+			String[] parts = entry.getKey().split("-");
+
+			int goalsA = Integer.parseInt(parts[0]);
+
+			int goalsB = Integer.parseInt(parts[1]);
+
+			double probability = entry.getValue() / (double) numSimulations;
+
+			topScores.add(new ScorePrediction(goalsA, goalsB, probability));
+
+		}
+
+		return topScores;
+
 	}
 }

@@ -15,8 +15,16 @@ public class Team {
 
 	public final double lossPct;   // loss percentage
 
+	// these three fields are the ACTUAL, UNMODIFIED numbers from FIFA's official team-statistics
+	// page for the 2026 World Cup (Attacking / Goalkeeping tabs). No rescaling, no invented
+	// rating scale - just the real reported values.
+	public final double xG;             // real Expected Goals total, from the Attacking tab
+	public final double goalsConceded;  // real Goals Conceded total, from the Goalkeeping tab
+	public final double saves;          // real Goalkeeper Saves total, from the Goalkeeping tab
+
 	// constructor, allows us to make multiple team objects
-	public Team(String name, int fifaRank, double eloRating, double winPct, double drawPct, double lossPct) {
+	public Team(String name, int fifaRank, double eloRating, double winPct, double drawPct, double lossPct,
+			double xG, double goalsConceded, double saves) {
 
 		this.name = name;
 
@@ -30,6 +38,12 @@ public class Team {
 
 		this.lossPct = lossPct;
 
+		this.xG = xG;
+
+		this.goalsConceded = goalsConceded;
+
+		this.saves = saves;
+
 	}
 
 	// tells us the win percentage minus the lose percentage, positive means they win more
@@ -38,6 +52,15 @@ public class Team {
 		return winPct - lossPct;
 
 	}
+
+	// real save percentage - a direct computation from the two real numbers above
+	// (saves / (saves + goals conceded)), not an invented rating
+	public double savePct() {
+
+		return saves / (saves + goalsConceded);
+
+	}
+
 	// overrides the default toString method, makes sure the teams name gets printed and not the reference it holds
 	@Override
 	public String toString() {

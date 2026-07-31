@@ -8,10 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// reads the data files, teams.txt and fixtures.txt
+// reads the data files, teams.txt, fixtures.txt, and results.txt
 public class DataLoader {
 
-	// Reads teams.txt and returns a Map where you can find any Team instantly just by typing its name as the key
+	// Reads teams.txt and returns a Map where you can find any Team instantly just
+	// by typing its name as the key
 	public static Map<String, Team> loadTeams(String path) throws IOException {
 
 		// this will hold all the Team objects we build, indexed by name.
@@ -20,20 +21,21 @@ public class DataLoader {
 		// opens the file for reading
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 
-			String line = br.readLine(); // reads the first line and throws it away because the actual data is underneath
+			String line = br.readLine(); // reads the first line and throws it away because the actual data is
+											// underneath
 
 			// reads all the lines one at a time until there are no more left
 			while ((line = br.readLine()) != null) {
 
 				// skips any empty lines
 				if (line.trim().isEmpty())
-				
+
 					continue;
 
 				// turns the text into an array
 				String[] p = line.split(",");
 
-				//builds a team object out of those text pieces
+				// builds a team object out of those text pieces
 				Team t = new Team(
 
 						p[0].trim(), // name
@@ -46,11 +48,17 @@ public class DataLoader {
 
 						Double.parseDouble(p[4].trim()), // drawPct
 
-						Double.parseDouble(p[5].trim()) // lossPct
+						Double.parseDouble(p[5].trim()), // lossPct
+
+						Double.parseDouble(p[6].trim()), // xG (real, from FIFA Attacking tab)
+
+						Double.parseDouble(p[7].trim()), // goalsConceded (real, from FIFA Goalkeeping tab)
+
+						Double.parseDouble(p[8].trim()) // saves (real, from FIFA Goalkeeping tab)
 
 				);
 
-				// stores the team in the amp
+				// stores the team in the map
 				teams.put(t.name, t);
 
 			}
@@ -73,10 +81,9 @@ public class DataLoader {
 			while ((line = br.readLine()) != null) {
 
 				if (line.trim().isEmpty())
-					
+
 					continue;
 
-				
 				String[] p = line.split(",");
 
 				String matchId = p[0].trim();
@@ -87,12 +94,12 @@ public class DataLoader {
 
 				String nameB = p[3].trim();
 
-				// look up the team objects 
+				// look up the team objects
 				Team a = teams.get(nameA);
 
 				Team b = teams.get(nameB);
 
-				//if a team wasn't found , print a warning
+				// if a team wasn't found , print a warning
 				if (a == null || b == null) {
 
 					System.err.println("Skipping fixture " + matchId + ": missing team data for "
@@ -103,7 +110,7 @@ public class DataLoader {
 
 				}
 
-				//build the fixture and add it to the list
+				// build the fixture and add it to the list
 				fixtures.add(new Fixture(matchId, group, a, b));
 
 			}
@@ -113,5 +120,52 @@ public class DataLoader {
 
 	}
 
-	
+	// reads results.txt (format: matchId,group,winner,finalScore,decidedBy) into a
+	// matchId -> ActualResult map. finalScore should be "goalsA-goalsB" matching
+	// the
+	// teamA/teamB order in fixtures.txt. decidedBy should be REG, AET, or PENS - if
+	// left
+	// blank it defaults to REG. Blank/unfilled rows (match not played yet) are
+	// skipped.
+	public static Map<String, ActualResult> loadActualResults(String path) throws IOException {
+
+		Map<String, ActualResult> results = new HashMap<>();
+
+		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+
+			String line = br.readLine(); // header
+
+			while ((line = br.readLine()) != null) {
+
+				if (line.trim().isEmpty())
+					continue;
+
+				String[] p = line.split(",", -1); // -1 keeps trailing empty fields instead of dropping them
+
+				String matchId = p[0].trim();
+				String group = p.length > 1 ? p[1].trim() : "";
+				String winner = p.length > 2 ? p[2].trim() : "";
+				String finalScore = p.length > 3 ? p[3].trim() : "";
+				String decidedBy = p.length > 4 ? p[4].trim().toUpperCase() : "";
+
+				// skip rows that haven't been filled in yet
+				if (winner.isEmpty() || finalScore.isEmpty())
+					continue;
+
+				if (decidedBy.isEmpty())
+					decidedBy = "REG"; // assume regulation time if not specified
+
+				String[] scoreParts = finalScore.split("-");
+				int goalsA = Integer.parseInt(scoreParts[0].trim());
+				int goalsB = Integer.parseInt(scoreParts[1].trim());
+
+				results.put(matchId, new ActualResult(group, winner, goalsA, goalsB, decidedBy));
+
+			}
+		}
+
+		return results;
+
+	}
+
 }
