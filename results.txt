@@ -1,0 +1,17 @@
+matchId,group,winner,finalScore,decidedBy
+M1,R1,Canada,1-0,REG
+M2,R1,Morocco,1-1,PENS
+M3,R1,Paraguay,1-1,PENS
+M4,R1,France,3-0,REG
+M5,R1,Belgium,3-2,AET
+M6,R1,USA,2-0,REG
+M7,R1,Spain,3-0,REG
+M8,R1,Portugal,2-1,REG
+M9,R1,Brazil,2-1,REG
+M10,R1,Norway,2-1,REG
+M11,R1,Mexico,2-0,REG
+M12,R1,England,2-1,REG
+M13,R1,Switzerland,2-0,REG
+M14,R1,Colombia,1-0,REG
+M15,R1,Egypt,1-1,PENS
+M16,R1,Argentina,3-2,AET
