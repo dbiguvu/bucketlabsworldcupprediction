@@ -15,3 +15,11 @@ M13,R1,Switzerland,Algeria
 M14,R1,Colombia,Ghana
 M15,R1,Australia,Egypt
 M16,R1,Argentina,Cape Verde
+M17,R2,Paraguay,France
+M18,R2,Canada,Morocco
+M19,R2,Portugal,Spain
+M20,R2,USA,Belgium
+M21,R2,Brazil,Norway
+M22,R2,Mexico,England
+M23,R2,Argentina,Egypt
+M24,R2,Switzerland,Colombia

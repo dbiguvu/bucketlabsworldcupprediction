@@ -11,8 +11,7 @@ import java.util.Map;
 // reads the data files, teams.txt, fixtures.txt, and results.txt
 public class DataLoader {
 
-	// Reads teams.txt and returns a Map where you can find any Team instantly just
-	// by typing its name as the key
+	// Reads teams.txt and returns a Map where you can find any Team instantly just by typing its name as the key
 	public static Map<String, Team> loadTeams(String path) throws IOException {
 
 		// this will hold all the Team objects we build, indexed by name.
@@ -21,8 +20,7 @@ public class DataLoader {
 		// opens the file for reading
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 
-			String line = br.readLine(); // reads the first line and throws it away because the actual data is
-											// underneath
+			String line = br.readLine(); // reads the first line and throws it away because the actual data is underneath
 
 			// reads all the lines one at a time until there are no more left
 			while ((line = br.readLine()) != null) {
@@ -35,7 +33,7 @@ public class DataLoader {
 				// turns the text into an array
 				String[] p = line.split(",");
 
-				// builds a team object out of those text pieces
+				//builds a team object out of those text pieces
 				Team t = new Team(
 
 						p[0].trim(), // name
@@ -50,11 +48,11 @@ public class DataLoader {
 
 						Double.parseDouble(p[5].trim()), // lossPct
 
-						Double.parseDouble(p[6].trim()), // xG (real, from FIFA Attacking tab)
+						Double.parseDouble(p[6].trim()), // goalsFor (real, from eloratings.net pre-tournament)
 
-						Double.parseDouble(p[7].trim()), // goalsConceded (real, from FIFA Goalkeeping tab)
+						Double.parseDouble(p[7].trim()), // goalsAgainst (real, from eloratings.net pre-tournament)
 
-						Double.parseDouble(p[8].trim()) // saves (real, from FIFA Goalkeeping tab)
+						Double.parseDouble(p[8].trim())  // matchesPlayed (real, from eloratings.net pre-tournament)
 
 				);
 
@@ -84,6 +82,7 @@ public class DataLoader {
 
 					continue;
 
+
 				String[] p = line.split(",");
 
 				String matchId = p[0].trim();
@@ -99,7 +98,7 @@ public class DataLoader {
 
 				Team b = teams.get(nameB);
 
-				// if a team wasn't found , print a warning
+				//if a team wasn't found , print a warning
 				if (a == null || b == null) {
 
 					System.err.println("Skipping fixture " + matchId + ": missing team data for "
@@ -110,7 +109,7 @@ public class DataLoader {
 
 				}
 
-				// build the fixture and add it to the list
+				//build the fixture and add it to the list
 				fixtures.add(new Fixture(matchId, group, a, b));
 
 			}
@@ -121,12 +120,9 @@ public class DataLoader {
 	}
 
 	// reads results.txt (format: matchId,group,winner,finalScore,decidedBy) into a
-	// matchId -> ActualResult map. finalScore should be "goalsA-goalsB" matching
-	// the
-	// teamA/teamB order in fixtures.txt. decidedBy should be REG, AET, or PENS - if
-	// left
-	// blank it defaults to REG. Blank/unfilled rows (match not played yet) are
-	// skipped.
+	// matchId -> ActualResult map. finalScore should be "goalsA-goalsB" matching the
+	// teamA/teamB order in fixtures.txt. decidedBy should be REG, AET, or PENS - if left
+	// blank it defaults to REG. Blank/unfilled rows (match not played yet) are skipped.
 	public static Map<String, ActualResult> loadActualResults(String path) throws IOException {
 
 		Map<String, ActualResult> results = new HashMap<>();

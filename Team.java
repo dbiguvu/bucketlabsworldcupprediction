@@ -15,16 +15,16 @@ public class Team {
 
 	public final double lossPct;   // loss percentage
 
-	// these three fields are the ACTUAL, UNMODIFIED numbers from FIFA's official team-statistics
-	// page for the 2026 World Cup (Attacking / Goalkeeping tabs). No rescaling, no invented
-	// rating scale - just the real reported values.
-	public final double xG;             // real Expected Goals total, from the Attacking tab
-	public final double goalsConceded;  // real Goals Conceded total, from the Goalkeeping tab
-	public final double saves;          // real Goalkeeper Saves total, from the Goalkeeping tab
+	// these three fields are the ACTUAL, UNMODIFIED numbers from eloratings.net's pre-tournament
+	// snapshot (dated Wednesday June 10 2026 - the day before the 2026 World Cup started).
+	// No rescaling, no invented rating - just the real reported career totals.
+	public final double goalsFor;      // real career Goals For total
+	public final double goalsAgainst;  // real career Goals Against total
+	public final double matchesPlayed; // real career total matches played
 
 	// constructor, allows us to make multiple team objects
 	public Team(String name, int fifaRank, double eloRating, double winPct, double drawPct, double lossPct,
-			double xG, double goalsConceded, double saves) {
+			double goalsFor, double goalsAgainst, double matchesPlayed) {
 
 		this.name = name;
 
@@ -38,11 +38,11 @@ public class Team {
 
 		this.lossPct = lossPct;
 
-		this.xG = xG;
+		this.goalsFor = goalsFor;
 
-		this.goalsConceded = goalsConceded;
+		this.goalsAgainst = goalsAgainst;
 
-		this.saves = saves;
+		this.matchesPlayed = matchesPlayed;
 
 	}
 
@@ -53,11 +53,19 @@ public class Team {
 
 	}
 
-	// real save percentage - a direct computation from the two real numbers above
-	// (saves / (saves + goals conceded)), not an invented rating
-	public double savePct() {
+	// real goals scored per match - a direct division of two real numbers (goalsFor / matchesPlayed),
+	// necessary because teams have wildly different career match totals, so raw goalsFor alone
+	// would unfairly favor teams with a long history over teams with fewer matches on record
+	public double goalsForPerMatch() {
 
-		return saves / (saves + goalsConceded);
+		return goalsFor / matchesPlayed;
+
+	}
+
+	// real goals conceded per match - same reasoning as above
+	public double goalsAgainstPerMatch() {
+
+		return goalsAgainst / matchesPlayed;
 
 	}
 

@@ -17,15 +17,6 @@ public class MonteCarloEngine {
 	// how much weight FIFA rank gets in the "overall quality" adjustment
 	private static final double RANK_WEIGHT = 1.5;
 
-	private static final double LEAGUE_AVG_GOALS = 1.35;
-
-	// these three constants are the ACTUAL computed averages of xG / goals conceded / save %
-	// across all 48 teams' real FIFA World Cup 2026 stats - not invented numbers, not a rescaled
-	// range. Every team's real stat just gets compared as a ratio against these real averages.
-	private static final double AVG_XG = 5.5333;
-	private static final double AVG_GOALS_CONCEDED = 6.4167;
-	private static final double AVG_SAVE_PCT = 0.6754;
-
 	// how many of the most frequent exact scorelines to report per match
 	private static final int TOP_SCORES_TRACKED = 3;
 
@@ -47,7 +38,7 @@ public class MonteCarloEngine {
 	}
 
 	//this method calculates what the probability that team A beats team B outright is, based on
-	// Elo/form/rank - used as a smaller "overall quality" nudge on top of the real-stats math
+	// Elo/form/rank - used as a smaller "overall quality" nudge on top of the real GF/GA math
 	private double expectedScoreA(Team a, Team b) {
 
 		double eloDiff = a.eloRating - b.eloRating; // tells us how much better A's Elo rating is than B's
@@ -64,18 +55,12 @@ public class MonteCarloEngine {
 	}
 
 	// how many goals "scoringTeam" should be expected to score against "concedingTeam", using
-	// ONLY real numbers: scoringTeam's real xG relative to the real tournament-average xG,
-	// multiplied by concedingTeam's real goals-conceded ratio and real save-percentage ratio.
-	// No rescaling, no invented rating scale - three real ratios multiplied together.
+	// ONLY real numbers: the plain average of scoringTeam's real goals-scored-per-match rate and
+	// concedingTeam's real goals-conceded-per-match rate. No rescaling, no invented averages,
+	// no ratios against a computed dataset mean - just two real per-match rates, averaged.
 	private double expectedGoalsFromRealStats(Team scoringTeam, Team concedingTeam) {
 
-		double attackVsAvg = scoringTeam.xG / AVG_XG;
-
-		double opponentDefenseVsAvg = concedingTeam.goalsConceded / AVG_GOALS_CONCEDED;
-
-		double opponentGkVsAvg = AVG_SAVE_PCT / concedingTeam.savePct();
-
-		double raw = LEAGUE_AVG_GOALS * attackVsAvg * opponentDefenseVsAvg * opponentGkVsAvg;
+		double raw = (scoringTeam.goalsForPerMatch() + concedingTeam.goalsAgainstPerMatch()) / 2.0;
 
 		return Math.max(0.15, raw);
 
