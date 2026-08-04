@@ -14,7 +14,7 @@ public class AccuracyEvaluator {
 		double brierSum = 0.0;      // lower is better - 0.0 is a perfect forecast
 
 		System.out.println("\n ACCURACY REPORT");
-		System.out.println(" (matches with no result on file yet are skipped)\n");
+
 
 		for (PredictionResult pr : predictions) {
 			ActualResult actual = actualResults.get(pr.fixture.matchId);
@@ -56,11 +56,6 @@ public class AccuracyEvaluator {
 			System.out.printf("%-8s predicted: %-5s  actual: %-5s (%d-%d, advanced: %s%s)  %s%n",
 					pr.fixture.matchId, predicted, regulationOutcome, actual.goalsA, actual.goalsB,
 					actual.winnerName, decidedNote, hit ? "CORRECT" : "miss");
-		}
-
-		if (evaluated == 0) {
-			System.out.println("No matches could be evaluated - no matching results found in results.txt.");
-			return;
 		}
 
 		System.out.println();
