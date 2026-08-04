@@ -39,7 +39,7 @@ public class AccuracyEvaluator {
 			if (exactHit)
 				exactScoreCorrect++;
 
-			// Brier score also uses the true regulation-time result - same reasoning as above.
+			// Brier score also uses the true regulation-time result 
 			double actualA = regulationOutcome.equals("A") ? 1.0 : 0.0;
 			double actualDraw = regulationOutcome.equals("DRAW") ? 1.0 : 0.0;
 			double actualB = regulationOutcome.equals("B") ? 1.0 : 0.0;
