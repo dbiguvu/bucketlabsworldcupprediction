@@ -22,9 +22,14 @@ public class Team {
 	public final double goalsAgainst;  // real career Goals Against total
 	public final double matchesPlayed; // real career total matches played
 
+	// real International Caps count for this team's most-experienced (presumed starting)
+	// goalkeeper, from a pre-tournament source. Caps = a real, complete, verifiable stat for
+	// every keeper; no rating/save% column was usable since it only covered 12 of 32 teams.
+	public final double goalkeeperCaps;
+
 	// constructor, allows us to make multiple team objects
 	public Team(String name, int fifaRank, double eloRating, double winPct, double drawPct, double lossPct,
-			double goalsFor, double goalsAgainst, double matchesPlayed) {
+			double goalsFor, double goalsAgainst, double matchesPlayed, double goalkeeperCaps) {
 
 		this.name = name;
 
@@ -43,6 +48,8 @@ public class Team {
 		this.goalsAgainst = goalsAgainst;
 
 		this.matchesPlayed = matchesPlayed;
+
+		this.goalkeeperCaps = goalkeeperCaps;
 
 	}
 

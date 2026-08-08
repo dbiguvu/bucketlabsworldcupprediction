@@ -23,3 +23,7 @@ M21,R2,Brazil,Norway
 M22,R2,Mexico,England
 M23,R2,Argentina,Egypt
 M24,R2,Switzerland,Colombia
+M25,R3,France,Morocco
+M26,R3,Spain,Belgium
+M27,R3,Norway,England
+M28,R3,Argentina,Switzerland

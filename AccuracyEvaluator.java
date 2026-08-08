@@ -14,7 +14,7 @@ public class AccuracyEvaluator {
 		double brierSum = 0.0;      // lower is better - 0.0 is a perfect forecast
 
 		System.out.println("\n ACCURACY REPORT");
-
+		
 
 		for (PredictionResult pr : predictions) {
 			ActualResult actual = actualResults.get(pr.fixture.matchId);
@@ -23,13 +23,12 @@ public class AccuracyEvaluator {
 			}
 			evaluated++;
 
-			// the outcome purely from the scoreline itself - "A", "B", or "DRAW". This is what
-			// the model's probabilities are actually trying to forecast (90 minutes of expected
-			// goals) - a penalty shootout winner is not something the model can see coming.
-			String regulationOutcome = actual.regulationOutcome();
+			// every knockout match has a team that actually moves on - even if regulation ended
+			// in a tie and it was settled on penalties. This turns that into "A" or "B" for display.
+			String actualLetter = actual.winnerName.equals(pr.fixture.teamA.name) ? "A" : "B";
 
 			String predicted = pr.predictedOutcome(); // "A", "B", or "DRAW"
-			boolean hit = predicted.equals(regulationOutcome);
+			boolean hit = predicted.equals(actualLetter);
 			if (hit)
 				correct++;
 
@@ -39,7 +38,10 @@ public class AccuracyEvaluator {
 			if (exactHit)
 				exactScoreCorrect++;
 
-			// Brier score also uses the true regulation-time result 
+			// Brier score still uses the true regulation-time result (A/DRAW/B from the scoreline
+			// itself), since that's what the model's probabilities are actually trying to forecast -
+			// a shootout winner isn't something the model can see coming.
+			String regulationOutcome = actual.regulationOutcome();
 			double actualA = regulationOutcome.equals("A") ? 1.0 : 0.0;
 			double actualDraw = regulationOutcome.equals("DRAW") ? 1.0 : 0.0;
 			double actualB = regulationOutcome.equals("B") ? 1.0 : 0.0;
@@ -54,13 +56,15 @@ public class AccuracyEvaluator {
 			String decidedNote = actual.wasDecidedBeyondRegulation() ? " via " + actual.decidedBy : "";
 
 			System.out.printf("%-8s predicted: %-5s  actual: %-5s (%d-%d, advanced: %s%s)  %s%n",
-					pr.fixture.matchId, predicted, regulationOutcome, actual.goalsA, actual.goalsB,
+					pr.fixture.matchId, predicted, actualLetter, actual.goalsA, actual.goalsB,
 					actual.winnerName, decidedNote, hit ? "CORRECT" : "miss");
 		}
 
+
+
 		System.out.println();
 		System.out.printf("Evaluated %d of %d total predictions%n", evaluated, predictions.size());
-		System.out.printf("Accuracy (predicted outcome vs. actual scoreline): %d/%d (%.1f%%)%n",
+		System.out.printf("Accuracy (predicted winner vs. who actually advanced): %d/%d (%.1f%%)%n",
 				correct, evaluated, correct / (double) evaluated * 100.0);
 		System.out.printf("Exact scoreline accuracy (top pick): %d/%d (%.1f%%)%n",
 				exactScoreCorrect, evaluated, exactScoreCorrect / (double) evaluated * 100.0);

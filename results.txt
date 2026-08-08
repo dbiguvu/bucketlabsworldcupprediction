@@ -15,3 +15,11 @@ M13,R1,Switzerland,2-0,REG
 M14,R1,Colombia,1-0,REG
 M15,R1,Egypt,1-1,PENS
 M16,R1,Argentina,3-2,AET
+M17,R2,France,1-0,REG
+M18,R2,Morocco,3-0,REG
+M19,R2,Spain,1-0,REG
+M20,R2,Belgium,4-1,REG
+M21,R2,Norway,2-1,REG
+M22,R2,England,3-2,REG
+M23,R2,Argentina,3-2,REG
+M24,R2,Switzerland,0-0,PENS

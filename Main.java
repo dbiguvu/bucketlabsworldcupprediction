@@ -29,23 +29,27 @@ public class Main {
 
 		List<PredictionResult> allPredictions = new ArrayList<>();
 
-		System.out.println(" ROUND 2 PREDICTIONS (" + NUM_SIMULATIONS + " trials per match)\n");
-		for (Fixture f : filterByGroup(allFixtures, "R2")) {
+		System.out.println(" ROUND 3 PREDICTIONS (" + NUM_SIMULATIONS + " trials per match)\n");
+		for (Fixture f : filterByGroup(allFixtures, "R3")) {
 			PredictionResult result = engine.simulate(f, NUM_SIMULATIONS);
 			allPredictions.add(result);
 			System.out.println(f.matchId + ": " + result);
 			System.out.println();
 		}
 
-		// round 1 is already played - we still simulate it silently (no printing) so the
+		// rounds 1 and 2 are already played - simulate them silently (no printing) so the
 		// accuracy evaluator below has something to compare against results.txt
 		for (Fixture f : filterByGroup(allFixtures, "R1")) {
 			PredictionResult result = engine.simulate(f, NUM_SIMULATIONS);
 			allPredictions.add(result);
 		}
+		for (Fixture f : filterByGroup(allFixtures, "R2")) {
+			PredictionResult result = engine.simulate(f, NUM_SIMULATIONS);
+			allPredictions.add(result);
+		}
 
-		// compare Round 1's predictions against the real results now on file -
-		// Round 2 rows in results.txt are still blank, so they're skipped automatically
+		// compare rounds 1 and 2 predictions against the real results now on file -
+		// round 3 rows in results.txt are still blank, so they're skipped automatically
 		Map<String, ActualResult> actualResults = DataLoader.loadActualResults(resultsPath);
 		AccuracyEvaluator.evaluate(allPredictions, actualResults);
 	}

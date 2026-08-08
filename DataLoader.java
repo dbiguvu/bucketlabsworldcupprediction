@@ -52,7 +52,9 @@ public class DataLoader {
 
 						Double.parseDouble(p[7].trim()), // goalsAgainst (real, from eloratings.net pre-tournament)
 
-						Double.parseDouble(p[8].trim())  // matchesPlayed (real, from eloratings.net pre-tournament)
+						Double.parseDouble(p[8].trim()), // matchesPlayed (real, from eloratings.net pre-tournament)
+
+						Double.parseDouble(p[9].trim())  // goalkeeperCaps (real, most-capped keeper's caps)
 
 				);
 
